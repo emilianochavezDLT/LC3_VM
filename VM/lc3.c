@@ -11,11 +11,13 @@ Im follwing the tortuial set by https://www.jmeiners.com/lc3-vm/#s0:0
 
 //This represents the number of memory locations that the LC3 VM has
 #define MEMORY_SIZE (1 << 16) // 2^16 or 65536, which in english is moving the bits 16 times to the left
-u_int16_t memory[MEMORY_SIZE]; //This is the memory of the LC3 VM
+u_int16_t memory[MEMORY_SIZE]; //This is the memory of the LC3 VM and we are storing it in an array.
 
 
 int main(){
 
     printf("Hello World\n");
+    
+
     return 0;
 }
