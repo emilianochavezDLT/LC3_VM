@@ -8,53 +8,17 @@ Im follwing the tortuial set by https://www.jmeiners.com/lc3-vm/#s0:0
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../registers/registers.h"
+#include "../instructions/opcodes.h"
+#include "../flags/flags.h"
 
 //This represents the number of memory locations that the LC3 VM has
 #define MEMORY_SIZE (1 << 16) // 2^16 or 65536, which in english is moving the bits 16 times to the left
 u_int16_t memory[MEMORY_SIZE]; //This is the memory of the LC3 VM and we are storing it in an array.
 
-enum {
-    R_R0 = 0,
-    R_R1,
-    R_R2,
-    R_R3,
-    R_R4,
-    R_R5,
-    R_R6,
-    R_R7,
-    R_PC, //Program Counter
-    R_COND, //Condition Flag
-    R_COUNT //This is the number of registers
-};
+
 
 u_int16_t reg[R_COUNT]; //This is the array of registers
-
-enum
-{
-    OP_BR = 0, /* branch */
-    OP_ADD,    /* add  */
-    OP_LD,     /* load */
-    OP_ST,     /* store */
-    OP_JSR,    /* jump register */
-    OP_AND,    /* bitwise and */
-    OP_LDR,    /* load register */
-    OP_STR,    /* store register */
-    OP_RTI,    /* unused */
-    OP_NOT,    /* bitwise not */
-    OP_LDI,    /* load indirect */
-    OP_STI,    /* store indirect */
-    OP_JMP,    /* jump */
-    OP_RES,    /* reserved (unused) */
-    OP_LEA,    /* load effective address */
-    OP_TRAP    /* execute trap */
-};
-
-enum
-{
-    FL_POS = 1 << 0, /* Positive Flag */
-    FL_ZRO = 1 << 1, /* Zero Flag */
-    FL_NEG = 1 << 2, /* Negative Flag */
-};
 
 
 int main(int argc, const char* argv[]){
@@ -95,6 +59,23 @@ int main(int argc, const char* argv[]){
         switch (op)
         {
             case OP_ADD:
+                /*Destination register (DR)*/
+                uint16_t r0 = (instr >> 9) & 0x7; //We are shifting the bits 9 times to the right and then we are ANDing it with 0x7
+                /*First operand (SR1)*/
+                uint16_t r1 = (instr >> 6) & 0x7; //We are shifting the bits 6 times to the right and then we are ANDing it with 0x7
+                /*Check if its an immediate mode*/
+                uint16_t imm_flag = (instr >> 5) & 0x1; //We are shifting the bits 5 times to the right and then we are ANDing it with 0x1
+
+                if(imm_flag){
+                    uint16_t imm5 = sign_extend(instr & 0x1F, 5); //We are ANDing it with 0x1F and then we are sign extending it by 5 bits
+                    reg[r0] = reg[r1] + imm5;
+                }
+                else{
+                    uint16_t r2 = instr & 0x7; //We are ANDing it with 0x7
+                    reg[r0] = reg[r1] + reg[r2];
+                }
+                update_flags(r0, reg);
+
                 break;
             case OP_AND:
                 break;
@@ -109,6 +90,13 @@ int main(int argc, const char* argv[]){
             case OP_LD:
                 break;
             case OP_LDI:
+                /*destination register (DR)*/
+                uint16_t r0 = (instr >> 9) & 0x7; //We are shifting the bits 9 times to the right and then we are ANDing it with 0x7
+                /*PCoffset 9*/
+                uint16_t pc_offset = sign_extend(instr & 0x1FF, 9); //We are ANDing it with 0x1FF and then we are sign extending it by 9 bits
+                /*Add pc_offset to the current PC, look at that memory location to get the final address*/
+                reg[r0] = mem_read(mem_read(reg[R_PC] + pc_offset));
+                update_flags(r0, reg);
                 break;
             case OP_LDR:
                 break;
@@ -128,12 +116,8 @@ int main(int argc, const char* argv[]){
                 abort();
                 break;
 
-
-
         }
 
-
     }    
-
     return 0;
 }
