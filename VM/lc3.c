@@ -90,6 +90,7 @@ int main(int argc, const char* argv[]){
             case OP_LD:
                 break;
             case OP_LDI:
+                
                 /*destination register (DR)*/
                 uint16_t r0 = (instr >> 9) & 0x7; //We are shifting the bits 9 times to the right and then we are ANDing it with 0x7
                 /*PCoffset 9*/
@@ -97,6 +98,7 @@ int main(int argc, const char* argv[]){
                 /*Add pc_offset to the current PC, look at that memory location to get the final address*/
                 reg[r0] = mem_read(mem_read(reg[R_PC] + pc_offset));
                 update_flags(r0, reg);
+
                 break;
             case OP_LDR:
                 break;

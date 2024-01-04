@@ -1,5 +1,5 @@
-#ifndef _FLAGS_H
-#define _FLAGS_H
+#ifndef FLAGS_H
+#define FLAGS_H
 
 enum
 {

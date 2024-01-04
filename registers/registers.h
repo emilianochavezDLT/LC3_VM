@@ -1,5 +1,5 @@
-#ifndef _REGISTERS_H
-#define _REGISTERS_H
+#ifndef REGISTERS_H
+#define REGISTERS_H
 
 enum {
     R_R0 = 0,
